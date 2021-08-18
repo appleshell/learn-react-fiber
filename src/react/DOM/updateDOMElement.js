@@ -3,6 +3,24 @@ export default function updateDOMElement (element, vDOM, oldVirtualDOM = {}) {
   const props = vDOM.props
   const oldProps = oldVirtualDOM.props || {}
 
+  if (vDOM.type === 'text') {
+    if (props.textContent !== oldProps.textContent) {
+      if (vDOM.parent.type !== oldVirtualDOM.parent.type) {
+        // 如果文本节点的父级类型发生了变化
+        vDOM.parent.stateNode.appendChild(
+          document.createTextNode(props.textContent),
+        )
+      } else {
+
+        vDOM.parent.stateNode.replaceChild(
+          document.createTextNode(props.textContent),
+          oldVirtualDOM.stateNode
+        )
+      }
+    }
+    return
+  }
+
   Object.keys(props).forEach(key => {
     const propValue = props[key]
     const oldPropValue = oldProps[key]
