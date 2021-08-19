@@ -1,7 +1,12 @@
+import { scheduleUpdate } from "../reconciliation";
 class Component {
   constructor(props) {
-    this.props = props
+    this.props = props;
+  }
+
+  setState(partialState) {
+    scheduleUpdate(this, partialState);
   }
 }
 
-export default Component
+export default Component;

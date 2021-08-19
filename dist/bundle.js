@@ -12,13 +12,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _reconciliation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../reconciliation */ "./src/react/reconciliation/index.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Component = function Component(props) {
-  _classCallCheck(this, Component);
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-  this.props = props;
-};
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+var Component = /*#__PURE__*/function () {
+  function Component(props) {
+    _classCallCheck(this, Component);
+
+    this.props = props;
+  }
+
+  _createClass(Component, [{
+    key: "setState",
+    value: function setState(partialState) {
+      (0,_reconciliation__WEBPACK_IMPORTED_MODULE_0__.scheduleUpdate)(this, partialState);
+    }
+  }]);
+
+  return Component;
+}();
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Component);
 
@@ -244,6 +262,31 @@ var createTaskQueue = function createTaskQueue() {
 
 /***/ }),
 
+/***/ "./src/react/Misc/getRoot/index.js":
+/*!*****************************************!*\
+  !*** ./src/react/Misc/getRoot/index.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// 根据class组件的fiber对象，向上遍历找到根fiber对象
+function getRoot(instance) {
+  var fiber = instance.__fiber;
+
+  while (fiber.parent) {
+    fiber = fiber.parent;
+  }
+
+  return fiber;
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (getRoot);
+
+/***/ }),
+
 /***/ "./src/react/Misc/getTag/index.js":
 /*!****************************************!*\
   !*** ./src/react/Misc/getTag/index.js ***!
@@ -284,12 +327,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createTaskQueue": () => (/* reexport safe */ _createTaskQueue__WEBPACK_IMPORTED_MODULE_0__.default),
 /* harmony export */   "arrified": () => (/* reexport safe */ _arrified__WEBPACK_IMPORTED_MODULE_1__.default),
 /* harmony export */   "createStateNode": () => (/* reexport safe */ _createStateNode__WEBPACK_IMPORTED_MODULE_2__.default),
-/* harmony export */   "getTag": () => (/* reexport safe */ _getTag__WEBPACK_IMPORTED_MODULE_3__.default)
+/* harmony export */   "getTag": () => (/* reexport safe */ _getTag__WEBPACK_IMPORTED_MODULE_3__.default),
+/* harmony export */   "getRoot": () => (/* reexport safe */ _getRoot__WEBPACK_IMPORTED_MODULE_4__.default)
 /* harmony export */ });
 /* harmony import */ var _createTaskQueue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./createTaskQueue */ "./src/react/Misc/createTaskQueue/index.js");
 /* harmony import */ var _arrified__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./arrified */ "./src/react/Misc/arrified/index.js");
 /* harmony import */ var _createStateNode__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./createStateNode */ "./src/react/Misc/createStateNode/index.js");
 /* harmony import */ var _getTag__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./getTag */ "./src/react/Misc/getTag/index.js");
+/* harmony import */ var _getRoot__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./getRoot */ "./src/react/Misc/getRoot/index.js");
+
 
 
 
@@ -377,18 +423,25 @@ __webpack_require__.r(__webpack_exports__);
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "render": () => (/* binding */ render)
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "scheduleUpdate": () => (/* binding */ scheduleUpdate)
 /* harmony export */ });
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../DOM */ "./src/react/DOM/index.js");
 /* harmony import */ var _Misc__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Misc */ "./src/react/Misc/index.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 /**
  * 1. 向任务队列中添加任务
  * 2. 指定在浏览器空闲时执行任务
- * 
+ *
  * 任务是指通过vdom对象构建fiber对象
-*/
+ */
 
 var taskQueue = (0,_Misc__WEBPACK_IMPORTED_MODULE_1__.createTaskQueue)();
 var subTask = null;
@@ -396,12 +449,28 @@ var pendingCommit = null; // 用来存放render阶段生成的effects
 
 var getFirstTask = function getFirstTask() {
   // 从任务队列中获取任务
-  var task = taskQueue.pop(); // 返回最外层节点的fiber对象
+  var task = taskQueue.pop();
+
+  if (task.from === "class_component") {
+    // 如果任务是来自class组件的更新任务，就找到fiberroot，重新构建fiber树
+    var root = (0,_Misc__WEBPACK_IMPORTED_MODULE_1__.getRoot)(task.instance);
+    task.instance.__fiber.partialState = task.partialState; // 
+
+    return {
+      props: root.props,
+      stateNode: root.stateNode,
+      tag: "host_root",
+      effects: [],
+      child: null,
+      alternate: root
+    };
+  } // 返回最外层节点的fiber对象
+
 
   return {
     props: task.props,
     stateNode: task.dom,
-    tag: 'host_root',
+    tag: "host_root",
     effects: [],
     child: null,
     alternate: task.dom.__rootFiberContainer
@@ -434,10 +503,15 @@ var workLoop = function workLoop(deadline) {
 
 
 var excuteTask = function excuteTask(fiber) {
-  if (fiber.tag === 'class_component') {
-    // class组件，第二个参数是render方法的返回值
+  if (fiber.tag === "class_component") {
+    // setState导致的状态变化，在构建新的fiber节点前，将新的state与老的state进行assign，这样render调用时，就能获取最新的state
+    if (fiber.stateNode.__fiber && fiber.stateNode.__fiber.partialState) {
+      fiber.stateNode.state = _objectSpread(_objectSpread({}, fiber.stateNode.state), fiber.stateNode.__fiber.partialState);
+    } // class组件，第二个参数是render方法的返回值
+
+
     reconcileChildren(fiber, fiber.stateNode.render());
-  } else if (fiber.tag === 'function_component') {
+  } else if (fiber.tag === "function_component") {
     // 函数组件
     reconcileChildren(fiber, fiber.stateNode(fiber.props));
   } else {
@@ -485,17 +559,22 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
     alternate = fiber.alternate.child; // 第一个备份子节点
   }
 
-  while (index < elementLength) {
+  while (index < elementLength || alternate) {
     element = arrifiedChildren[index]; // element是子节点的ReactElement对象
 
-    if (element && alternate) {
+    if (!element && alternate) {
+      // 执行删除操作
+      // 当前函数中是构建fiber节点，因此要将当前节点的effecttag标记为删除
+      alternate.effectTag = "delete";
+      fiber.effects.push(alternate);
+    } else if (element && alternate) {
       // 新节点和老节点都存在，执行更新操作
       newFiber = {
         type: element.type,
         props: element.props,
         tag: (0,_Misc__WEBPACK_IMPORTED_MODULE_1__.getTag)(element),
         effects: [],
-        effectTag: 'update',
+        effectTag: "update",
         // 当前节点的操作类型
         stateNode: null,
         parent: fiber,
@@ -516,19 +595,20 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
         props: element.props,
         tag: (0,_Misc__WEBPACK_IMPORTED_MODULE_1__.getTag)(element),
         effects: [],
-        effectTag: 'placement',
+        effectTag: "placement",
         // 当前节点的操作类型
         stateNode: null,
         parent: fiber
       };
       newFiber.stateNode = (0,_Misc__WEBPACK_IMPORTED_MODULE_1__.createStateNode)(newFiber);
-    }
+    } // console.log(newFiber)
+    // 如果是第一个子节点，就设置为父节点的子节点；剩余的子节点，设置为第一个子节点的兄弟节点
 
-    console.log(newFiber); // 如果是第一个子节点，就设置为父节点的子节点；剩余的子节点，设置为第一个子节点的兄弟节点
 
     if (index === 0) {
       fiber.child = newFiber;
-    } else {
+    } else if (element) {
+      // 如果新的节点不存在了，也就不存在对应的fiber节点了，就不需要添加了
       prevFiber.sibling = newFiber;
     } // 第一个子节点备份好后，备份其他子节点
 
@@ -546,9 +626,14 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
 
 
 var commitAllWork = function commitAllWork(fiber) {
-  // console.log(fiber.effects)
+  console.log(fiber.effects);
   fiber.effects.forEach(function (item) {
-    if (item.effectTag === 'update') {
+    if (item.tag === "class_component") {
+      // 在class组件的实例对象上添加属性，指向其对应的fiber对象
+      item.stateNode.__fiber = item;
+    }
+
+    if (item.effectTag === "update") {
       if (item.type === item.alternate.type) {
         // 如果新老fiber节点的类型相同，复用DOM节点，只需更新DOM节点的属性
         (0,_DOM__WEBPACK_IMPORTED_MODULE_0__.updateDOMElement)(item.stateNode, item, item.alternate);
@@ -556,17 +641,19 @@ var commitAllWork = function commitAllWork(fiber) {
         // 如果新老fiber节点的类型不相同，就用新的stateNode替换老的DOM
         item.parent.stateNode.replaceChild(item.stateNode, item.alternate.stateNode);
       }
-    } else if (item.effectTag === 'placement') {
+    } else if (item.effectTag === "placement") {
       var _fiber = item;
       var parentFiber = _fiber.parent; // class和函数组件上不能添加DOM节点，需要找到当前节点最近的一个原生类型的父节点，然后挂载DOM
 
-      while (parentFiber.tag === 'class_component' || parentFiber.tag === 'function_component') {
+      while (parentFiber.tag === "class_component" || parentFiber.tag === "function_component") {
         parentFiber = parentFiber.parent;
       }
 
-      if (_fiber.tag === 'host_component') {
+      if (_fiber.tag === "host_component") {
         parentFiber.stateNode.appendChild(_fiber.stateNode);
       }
+    } else if (item.effectTag === "delete") {
+      item.stateNode.remove(); // item.parent.stateNode.removeChild(item.stateNode)
     }
   }); // 首次渲染完成后，备份旧的fiber节点对象，备份到fiberroot对应的DOM节点上
 
@@ -583,7 +670,23 @@ var render = function render(element, container) {
   }); // 在浏览器空闲时间执行任务
 
   requestIdleCallback(performTask);
+}; // 调度组件的状态更新，将状态更新包装为一个task，放入任务队列中。浏览器空闲时进行执行
+
+var scheduleUpdate = function scheduleUpdate(instance, partialState) {
+  taskQueue.push({
+    from: "class_component",
+    instance: instance,
+    partialState: partialState
+  });
+  requestIdleCallback(performTask);
 };
+/**
+ *  calss组件更新思路：
+ * 
+ *  1. 将状态更新包装成一个任务，放入任务队列，等待浏览器空闲时执行
+ *  2. 开始执行更新任务时，从根节点开始重新构建fiber树（其实是个双向链表）
+ *  3. 在构建发生更新的组件的fiber节点时，先把新的state与老的state进行合并，这个操作是在组件的实例上进行的。然后再调用render方法，返回新的reactElement对象
+*/
 
 /***/ })
 
@@ -673,15 +776,25 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var root = document.getElementById('root');
-var jsx = /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, "Hello React"), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, "Hi JSX"), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("span", null, "123")));
-console.log(jsx);
-_react__WEBPACK_IMPORTED_MODULE_0__.default.render(jsx, root);
-setTimeout(function () {
-  var jsx = /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, "Hello UUUUUUUUpdate"), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, "Hi JSX"), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("span", null, "123")));
-  _react__WEBPACK_IMPORTED_MODULE_0__.default.render(jsx, root);
-}, 5000);
+
+var root = document.getElementById("root"); // const jsx = <div>
+//   <p>Hello React</p>
+//   <p>Hi JSX</p>
+//   <div>
+//     <span>123</span>
+//   </div>
+// </div>
+// console.log(jsx)
+// React.render(jsx, root)
+// setTimeout(() => {
+//   const jsx = <div>
+//     <div>Hello UUUUUUUUpdate</div>
+//     <p>Hi JSX</p>
+//   </div>
+//   React.render(jsx, root)
+// }, 5000)
 
 var Greating = /*#__PURE__*/function (_React$Component) {
   _inherits(Greating, _React$Component);
@@ -689,21 +802,44 @@ var Greating = /*#__PURE__*/function (_React$Component) {
   var _super = _createSuper(Greating);
 
   function Greating(props) {
+    var _this;
+
     _classCallCheck(this, Greating);
 
-    return _super.call(this, props);
+    _this = _super.call(this, props);
+
+    _defineProperty(_assertThisInitialized(_this), "handleclick", function () {
+      _this.setState({
+        name: "李四"
+      }); // this.setState({
+      //   name: "王五",
+      // });
+
+
+      console.log(_this.state);
+    });
+
+    _this.state = {
+      name: "张三"
+    };
+    return _this;
   }
 
   _createClass(Greating, [{
     key: "render",
     value: function render() {
-      return /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, "classssss", /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, this.props.title));
+      return /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("div", null, "classssss", /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, this.props.title), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("p", null, "name: ", this.state.name), /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement("button", {
+        onClick: this.handleclick
+      }, "click"));
     }
   }]);
 
   return Greating;
-}(_react__WEBPACK_IMPORTED_MODULE_0__.default.Component); // React.render(<Greating title='good!' />, root)
+}(_react__WEBPACK_IMPORTED_MODULE_0__.default.Component);
 
+_react__WEBPACK_IMPORTED_MODULE_0__.default.render( /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__.default.createElement(Greating, {
+  title: "good!"
+}), root);
 
 function Hello(_ref) {
   var title = _ref.title;
